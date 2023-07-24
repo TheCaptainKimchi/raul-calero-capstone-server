@@ -1,15 +1,26 @@
 const express = require("express");
 const router = express.Router();
 const fs = require("fs");
+const axios = require("axios");
 
 router.route("/").get((req, res) => {
   res.send(
-    "Welcome to the API! You may obtain list of videos from GET /videos, upload a video from POST /videos by passing query params `title` and `description`, and you may get the specific video details from GET videos/:videoId"
+    "Welcome to the SparkGG API! To get started, you can send a GET request to /match and /leaderboard."
   );
 });
 
-router.route("/match").get((req, res) => {
-  res.send("test");
+router.route("/puuid").get((req, res) => {
+  const userName = req.query.userName;
+  const tagline = req.query.tagline;
+
+  axios
+    .get(
+      `https://americas.api.riotgames.com/riot/account/v1/accounts/by-riot-id/xstarwise/na1?api_key=RGAPI-24ec6a6b-a086-45ef-86c7-decf8a62cde3`
+    )
+    .then((response) => {
+      const json = JSON.stringify(response.data);
+      res.send(json);
+    });
 });
 
 router.route("/leaderboard").get((req, res) => {
