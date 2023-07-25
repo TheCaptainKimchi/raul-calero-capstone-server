@@ -16,6 +16,8 @@ router.route("/").get((req, res) => {
 router.route("/puuid").get((req, res) => {
   const userName = req.query.userName;
   const tagline = req.query.tagline;
+  console.log(userName);
+  console.log(tagline);
 
   axios
     .get(
@@ -29,6 +31,7 @@ router.route("/puuid").get((req, res) => {
 
 router.route("/matchId").get((req, res) => {
   const puuid = req.query.puuid;
+  console.log(puuid);
 
   axios
     .get(
@@ -43,6 +46,7 @@ router.route("/matchId").get((req, res) => {
 
 router.route("/match").get((req, res) => {
   const matchId = req.query.matchId;
+  console.log(matchId);
 
   axios
     .get(
