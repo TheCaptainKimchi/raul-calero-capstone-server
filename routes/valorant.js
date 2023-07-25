@@ -23,6 +23,33 @@ router.route("/puuid").get((req, res) => {
     });
 });
 
+router.route("/matchId").get((req, res) => {
+  const puuid = req.query.puuid;
+
+  axios
+    .get(
+      `https://na.api.riotgames.com/val/match/v1/matchlists/by-puuid/wyBvNX_NM_Qu61JJ0anao91ipKnUSDi98LPUNNpfPtrVO1DI9S4OUvQBzpPPseZpy1VpsWvhCw_Wgw?api_key=RGAPI-ef80b34c-fc4e-4e51-b4cd-cfed779db7fb`
+    )
+    .then((response) => {
+      const json = JSON.stringify(response.data);
+      const matchId = response.data.history[0].matchId;
+      res.send(matchId);
+    });
+});
+
+router.route("/match").get((req, res) => {
+  const matchId = req.query.matchId;
+
+  axios
+    .get(
+      `https://na.api.riotgames.com/val/match/v1/matches/7c00ab38-bb85-4525-9e59-5d94972e4227?api_key=RGAPI-ef80b34c-fc4e-4e51-b4cd-cfed779db7fb`
+    )
+    .then((response) => {
+      const json = JSON.stringify(response.data);
+      res.send(json);
+    });
+});
+
 router.route("/leaderboard").get((req, res) => {
   res.send("Test2");
 });
