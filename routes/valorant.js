@@ -2,8 +2,12 @@ const express = require("express");
 const router = express.Router();
 const fs = require("fs");
 const axios = require("axios");
+const env = require("dotenv").config({ path: __dirname + "/../.env" });
+
+const apiKey = process.env.API_KEY;
 
 router.route("/").get((req, res) => {
+  console.log(apiKey);
   res.send(
     "Welcome to the SparkGG API! To get started, you can send a GET request to /match and /leaderboard."
   );
@@ -17,7 +21,7 @@ router.route("/puuid").get((req, res) => {
 
   axios
     .get(
-      `https://americas.api.riotgames.com/riot/account/v1/accounts/by-riot-id/${userName}/${tagline}?api_key=RGAPI-24ec6a6b-a086-45ef-86c7-decf8a62cde3`
+      `https://americas.api.riotgames.com/riot/account/v1/accounts/by-riot-id/${userName}/${tagline}?api_key=${apiKey}`
     )
     .then((response) => {
       const json = JSON.stringify(response.data);
@@ -30,7 +34,7 @@ router.route("/matchId").get((req, res) => {
 
   axios
     .get(
-      `https://na.api.riotgames.com/val/match/v1/matchlists/by-puuid/${puuid}?api_key=RGAPI-ef80b34c-fc4e-4e51-b4cd-cfed779db7fb`
+      `https://na.api.riotgames.com/val/match/v1/matchlists/by-puuid/${puuid}?api_key=${apiKey}`
     )
     .then((response) => {
       const json = JSON.stringify(response.data);
@@ -44,7 +48,7 @@ router.route("/match").get((req, res) => {
 
   axios
     .get(
-      `https://na.api.riotgames.com/val/match/v1/matches/${matchId}?api_key=RGAPI-ef80b34c-fc4e-4e51-b4cd-cfed779db7fb`
+      `https://na.api.riotgames.com/val/match/v1/matches/${matchId}?api_key=${apiKey}`
     )
     .then((response) => {
       const json = JSON.stringify(response.data);
