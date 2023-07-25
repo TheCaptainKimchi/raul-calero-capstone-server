@@ -16,8 +16,6 @@ router.route("/").get((req, res) => {
 router.route("/puuid").get((req, res) => {
   const userName = req.query.userName;
   const tagline = req.query.tagline;
-  console.log(typeof tagline);
-  console.log(typeof userName);
 
   axios
     .get(
