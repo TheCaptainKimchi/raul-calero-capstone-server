@@ -3,6 +3,8 @@ const router = express.Router();
 const fs = require("fs");
 const axios = require("axios");
 const env = require("dotenv").config({ path: __dirname + "/../.env" });
+const { isDataExists } = require("../utils/utils");
+const path = require("path");
 
 const apiKey = process.env.API_KEY;
 const cache = {};
@@ -59,12 +61,53 @@ router.route("/match").get((req, res) => {
     });
 });
 
-router
-  .route("/leaderboard")
-  .get((req, res) => {
-    res.send("Test2");
-  })
-  .post((req, res) => {});
+router.route("/leaderboard").post((req, res) => {
+  const filePath = path.join(__dirname, "..", "data", "leaderboard.json");
+  const obj = {
+    id: req.query.id,
+    userName: req.query.userName,
+    tagline: req.query.tagline,
+    puuid: req.query.puuid,
+    kills: req.query.kills,
+    deaths: req.query.deaths,
+    assists: req.query.assists,
+    kda: req.query.kda,
+    acs: req.query.acs,
+    map: req.query.map,
+    agent: req.query.agent,
+    mode: req.query.mode,
+  };
+
+  try {
+    // Read the existing data from the JSON file (if any)
+    let existingData = [];
+    if (fs.existsSync(filePath)) {
+      const dataString = fs.readFileSync(filePath, "utf8");
+      existingData = JSON.parse(dataString);
+    }
+
+    // Check if data with the given id already exists
+    if (isDataExists(existingData, obj)) {
+      return res
+        .status(200)
+        .json({ Response: "Data already added to database." });
+    }
+
+    // Append the received data to the existing data
+    existingData.push(obj);
+
+    // Write the updated data back to the JSON file
+    fs.writeFileSync(filePath, JSON.stringify(existingData, null, 2), "utf8");
+
+    // Respond with a success message
+    res
+      .status(200)
+      .json({ message: "Data added to the JSON file successfully." });
+  } catch (error) {
+    console.error("Error processing the request:", error);
+    res.status(500).json({ error: "Something went wrong." });
+  }
+});
 
 router.route("*").get((req, res) => {
   res.send(
