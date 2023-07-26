@@ -5,6 +5,7 @@ const axios = require("axios");
 const env = require("dotenv").config({ path: __dirname + "/../.env" });
 
 const apiKey = process.env.API_KEY;
+const cache = {};
 
 router.route("/").get((req, res) => {
   console.log(apiKey);
@@ -58,9 +59,12 @@ router.route("/match").get((req, res) => {
     });
 });
 
-router.route("/leaderboard").get((req, res) => {
-  res.send("Test2");
-});
+router
+  .route("/leaderboard")
+  .get((req, res) => {
+    res.send("Test2");
+  })
+  .post((req, res) => {});
 
 router.route("*").get((req, res) => {
   res.send(
