@@ -29,6 +29,10 @@ router.route("/puuid").get((req, res) => {
     .then((response) => {
       const json = JSON.stringify(response.data);
       res.send(json);
+    })
+    .catch((error) => {
+      res.status(404);
+      res.json(`Error: ${error}`);
     });
 });
 
@@ -44,6 +48,10 @@ router.route("/matchId").get((req, res) => {
       const json = JSON.stringify(response.data);
       const matchId = response.data.history;
       res.send(matchId);
+    })
+    .catch((error) => {
+      res.status(404);
+      res.json(`Error: ${error}`);
     });
 });
 
@@ -58,6 +66,10 @@ router.route("/match").get((req, res) => {
     .then((response) => {
       const json = JSON.stringify(response.data);
       res.send(json);
+    })
+    .catch((error) => {
+      res.status(404);
+      res.json(`Error: ${error}`);
     });
 });
 
@@ -105,7 +117,7 @@ router.route("/leaderboard").post((req, res) => {
       .json({ message: "Data added to the JSON file successfully." });
   } catch (error) {
     console.error("Error processing the request:", error);
-    res.status(500).json({ error: "Something went wrong." });
+    res.status(400).json({ error: "Something went wrong." });
   }
 });
 
