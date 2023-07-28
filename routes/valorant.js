@@ -267,12 +267,12 @@ router
 
       // ===== OUTPUT =====
 
-      const leaderboard = [
-        { mostKills },
-        { mostDeaths },
-        { mostAssists },
-        { bestKda },
-      ];
+      const leaderboard = {
+        mostKills: mostKills,
+        mostDeaths: mostDeaths,
+        mostAssists: mostAssists,
+        bestKda: bestKda,
+      };
 
       res.json(leaderboard);
     });
