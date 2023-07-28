@@ -2,14 +2,17 @@ const express = require("express");
 const router = express.Router();
 const fs = require("fs");
 const axios = require("axios");
-const env = require("dotenv").config({ path: __dirname + "/../.env" });
 const { isDataExists } = require("../utils/utils");
 const path = require("path");
+const jwt = require("jsonwebtoken");
 
 const apiKey = process.env.API_KEY;
-const cache = {};
 const filePath = path.join(__dirname, "..", "data", "leaderboard.json");
+const usersPath = path.join(__dirname, "..", "data", "users.json");
 
+// ==========================
+// ====== Default path ======
+// ==========================
 router.route("/").get((req, res) => {
   console.log(apiKey);
   res.send(
@@ -17,6 +20,9 @@ router.route("/").get((req, res) => {
   );
 });
 
+// ==========================
+// ======= PUUID path =======
+// ==========================
 router.route("/puuid").get((req, res) => {
   const userName = req.query.userName;
   const tagline = req.query.tagline;
@@ -37,6 +43,9 @@ router.route("/puuid").get((req, res) => {
     });
 });
 
+// ==========================
+// ====== MatchId path ======
+// ==========================
 router.route("/matchId").get((req, res) => {
   const puuid = req.query.puuid;
   console.log(`puuid: ${puuid}`);
@@ -56,6 +65,9 @@ router.route("/matchId").get((req, res) => {
     });
 });
 
+// ==========================
+// ======= Match path =======
+// ==========================
 router.route("/match").get((req, res) => {
   const matchId = req.query.matchId;
   console.log(matchId);
@@ -74,6 +86,9 @@ router.route("/match").get((req, res) => {
     });
 });
 
+// ================================
+// ======= Leaderboard path =======
+// ================================
 router
   .route("/leaderboard")
   .post((req, res) => {
@@ -278,9 +293,174 @@ router
     });
   });
 
+// ==========================
+// ======= Users path =======
+// ==========================
+
+// Allow users to sign in, and get a JWT token
+router.route("/login").post((req, res) => {
+  const { username, password } = req.query;
+
+  fs.readFile(usersPath, "utf8", (err, data) => {
+    if (err) {
+      console.error("Error reading the users.json file:", err);
+      return res.status(500).json({ error: "Server error" });
+    }
+
+    try {
+      // Parse the JSON data into an array of objects
+      const usersData = JSON.parse(data);
+
+      // Find the user with the matching username
+      const foundUser = usersData.find((user) => user.username === username);
+
+      if (!foundUser) {
+        // User does not exist, return error response
+        return res.status(404).json({ error: "User not found" });
+      }
+
+      // Validate the supplied password matches the password in the DB
+      if (password !== foundUser.password) {
+        return res.status(400).json({
+          success: false,
+          message: "Username/Password combination is incorrect",
+        });
+      }
+
+      // User exists and password is correct, return success response
+      const token = jwt.sign(
+        {
+          username: username,
+          loginTime: Date.now(),
+        },
+        process.env.JWT_SECRET,
+        { expiresIn: "5m" }
+      );
+
+      // Send the JWT token to the frontend
+      return res.status(200).json({ token });
+    } catch (error) {
+      console.error("Error parsing JSON data:", error);
+      return res.status(500).json({ error: "Server error" });
+    }
+  });
+});
+
+// Route to handle user registration
+router.route("/register").post((req, res) => {
+  // Get the user submitted details from the request body
+  const { username, password } = req.query;
+
+  // Read the existing users data from the file
+  fs.readFile(usersPath, "utf8", (err, data) => {
+    if (err) {
+      console.error("Error reading the users.json file:", err);
+      return res.status(500).json({ success: false, message: "Server error" });
+    }
+
+    try {
+      // Parse the JSON data into an array of objects
+      const usersData = JSON.parse(data);
+
+      // Check if the user already exists in the users data
+      const userExists = usersData.some((user) => user.username === username);
+      if (userExists) {
+        return res
+          .status(400)
+          .json({ success: false, message: "User already exists" });
+      }
+
+      // Add the new user to the users data
+      usersData.push({ username, password });
+
+      // Write the updated data back to the users.json file
+      fs.writeFile(usersPath, JSON.stringify(usersData), (err) => {
+        if (err) {
+          console.error("Error writing to the users.json file:", err);
+          return res
+            .status(500)
+            .json({ success: false, message: "Server error" });
+        }
+
+        return res.status(201).json({ success: true, message: "User created" });
+      });
+    } catch (error) {
+      console.error("Error parsing JSON data:", error);
+      return res.status(500).json({ success: false, message: "Server error" });
+    }
+  });
+});
+
+// Middleware which checks the authorization token
+const authorise = (req, res, next) => {
+  // Check if the authorization header wasn't set
+  if (!req.headers.authorization) {
+    return res.status(401).json({
+      success: false,
+      message: "This route requires an authorization header",
+    });
+  }
+
+  // Check if the authorization token is missing "Bearer "
+  if (req.headers.authorization.indexOf("Bearer") === -1) {
+    return res
+      .status(401)
+      .json({ success: false, message: "The authorization token is invalid" });
+  }
+
+  // Get the token itself for the authorization header (without "Bearer ")
+  const authToken = req.headers.authorization.split(" ")[1];
+
+  // The callback comes with two parameters - the error and the decoded token (the payload)
+  // To check the JWT token, we provide 3 arguments to jwt.verify()
+  //  1) The token
+  //  2) The secret it was signed with
+  //  3) A callback to perform after the JWT has been verified
+  // The callback function has two parameters for us to use, an error (if there is one) and the decoded token
+  jwt.verify(authToken, process.env.JWT_SECRET, (err, decoded) => {
+    // Check if there was an error when verifying the JWT token
+    if (err) {
+      return res.status(401).json({
+        success: false,
+        message: "The authorization token is invalid",
+      });
+    }
+
+    // Set the decoded token on the request object, for the endpoint to use
+    req.jwtDecoded = decoded;
+
+    // Move on to the next middleware function
+    next();
+  });
+};
+
+router.route("/profile").get(authorise, (req, res) => {
+  res.json({
+    token: req.jwtDecoded,
+  });
+});
+
+// ==============================
+// ======= Catch All path =======
+// ==============================
 router.route("*").get((req, res) => {
   res.send(
     "Path not defined. Try a different path or refer to '/' path to start."
   );
 });
 module.exports = router;
+
+// const { username, password } = req.query;
+
+// // Check if the user already exists the the DB
+// const user = users.find((user) => user.username === username);
+// if (user) {
+//   return res
+//     .status(400)
+//     .json({ success: false, message: "User already exists" });
+// }
+
+// // Add the user to the DB
+// users.push({ username, password });
+
+// res.status(201).json({ success: true, message: "User created" });
