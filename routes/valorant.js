@@ -331,6 +331,9 @@ router.route("/login").post((req, res) => {
       const token = jwt.sign(
         {
           username: username,
+          puuid: foundUser.puuid,
+          riotId: foundUser.riotId,
+          tagline: foundUser.tagline,
           loginTime: Date.now(),
         },
         process.env.JWT_SECRET,
@@ -405,7 +408,7 @@ const authorise = (req, res, next) => {
   if (req.headers.authorization.indexOf("Bearer") === -1) {
     return res
       .status(401)
-      .json({ success: false, message: "The authorization token is invalid" });
+      .json({ success: false, message: "The authorization token is invalid!" });
   }
 
   // Get the token itself for the authorization header (without "Bearer ")
@@ -417,6 +420,8 @@ const authorise = (req, res, next) => {
   //  2) The secret it was signed with
   //  3) A callback to perform after the JWT has been verified
   // The callback function has two parameters for us to use, an error (if there is one) and the decoded token
+
+  console.log(authToken);
   jwt.verify(authToken, process.env.JWT_SECRET, (err, decoded) => {
     // Check if there was an error when verifying the JWT token
     if (err) {

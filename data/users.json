@@ -1,1 +1,10 @@
-[{"username":"sabukmeil","password":"test"},{"username":"jdoe","password":"test2"},{"username":"admin","password":"test2"},{"username":"star","password":"password"},{"username":"starwise","password":"password1"}]
+[
+  {
+    "username": "starwise",
+    "password": "password",
+    "riotId": "xstarwise",
+    "tagline": "na1",
+    "email": "starwisegg@gmail.com",
+    "puuid": "wyBvNX_NM_Qu61JJ0anao91ipKnUSDi98LPUNNpfPtrVO1DI9S4OUvQBzpPPseZpy1VpsWvhCw_Wgw"
+  }
+]
