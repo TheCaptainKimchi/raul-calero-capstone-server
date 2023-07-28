@@ -352,7 +352,7 @@ router.route("/login").post((req, res) => {
 // Route to handle user registration
 router.route("/register").post((req, res) => {
   // Get the user submitted details from the request body
-  const { username, password } = req.query;
+  const { username, password, riotId, tagline, email, puuid } = req.query;
 
   // Read the existing users data from the file
   fs.readFile(usersPath, "utf8", (err, data) => {
@@ -374,7 +374,7 @@ router.route("/register").post((req, res) => {
       }
 
       // Add the new user to the users data
-      usersData.push({ username, password });
+      usersData.push({ username, password, riotId, tagline, email, puuid });
 
       // Write the updated data back to the users.json file
       fs.writeFile(usersPath, JSON.stringify(usersData), (err) => {
