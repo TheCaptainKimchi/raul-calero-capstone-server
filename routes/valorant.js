@@ -293,6 +293,37 @@ router
     });
   });
 
+router.route("/leaderboard/:puuid").get((req, res) => {
+  const puuid = req.params.puuid;
+
+  // Read the leaderboard.json file
+  fs.readFile(filePath, "utf8", (err, data) => {
+    if (err) {
+      console.error("Error reading file:", err);
+      return res.status(500).json({ error: "Internal server error" });
+    }
+
+    try {
+      // Parse the JSON data
+      const leaderboardData = JSON.parse(data);
+
+      // Filter the data for the given user's puuid
+      const userData = leaderboardData.filter((user) => user.puuid === puuid);
+
+      // Check if the user was found
+      if (userData.length === 0) {
+        return res.status(404).json({ error: "User not found" });
+      }
+
+      // If found, send the data back
+      return res.json(userData);
+    } catch (parseError) {
+      console.error("Error parsing JSON:", parseError);
+      return res.status(500).json({ error: "Internal server error" });
+    }
+  });
+});
+
 // ==========================
 // ======= Users path =======
 // ==========================

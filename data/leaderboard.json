@@ -1231,5 +1231,61 @@
     "map": "Split",
     "agent": "Phoenix",
     "mode": "custom"
+  },
+  {
+    "id": "11bd9dad-dc27-4672-b9c0-3ed9e7bfb381",
+    "userName": "Aang",
+    "tagline": "muse",
+    "puuid": "hsGXe6aNiaARussPRER1jIGiRCcNOMZbv9oZrHcVkDgX9HxuptRTnZw9EBweIPf1Dq8TxO79L8MNbg",
+    "kills": "10",
+    "deaths": "25",
+    "assists": "3",
+    "kda": "0.52",
+    "acs": "3503",
+    "map": "Icebox",
+    "agent": "Breach",
+    "mode": "deathmatch"
+  },
+  {
+    "id": "bad2d8da-b73d-4017-846a-e7a1fbcfcf55",
+    "userName": "Aang",
+    "tagline": "muse",
+    "puuid": "hsGXe6aNiaARussPRER1jIGiRCcNOMZbv9oZrHcVkDgX9HxuptRTnZw9EBweIPf1Dq8TxO79L8MNbg",
+    "kills": "18",
+    "deaths": "18",
+    "assists": "0",
+    "kda": "1",
+    "acs": "5167",
+    "map": "Fracture",
+    "agent": "Omen",
+    "mode": "deathmatch"
+  },
+  {
+    "id": "90dad396-37b6-4295-84cd-d3e461471603",
+    "userName": "Aang",
+    "tagline": "muse",
+    "puuid": "hsGXe6aNiaARussPRER1jIGiRCcNOMZbv9oZrHcVkDgX9HxuptRTnZw9EBweIPf1Dq8TxO79L8MNbg",
+    "kills": "12",
+    "deaths": "11",
+    "assists": "1",
+    "kda": "1.1818181818181819",
+    "acs": "3031",
+    "map": "Lotus",
+    "agent": "Sage",
+    "mode": "escalation"
+  },
+  {
+    "id": "425e35b4-aa92-4005-abf8-d972279552a7",
+    "userName": "Aang",
+    "tagline": "muse",
+    "puuid": "hsGXe6aNiaARussPRER1jIGiRCcNOMZbv9oZrHcVkDgX9HxuptRTnZw9EBweIPf1Dq8TxO79L8MNbg",
+    "kills": "10",
+    "deaths": "19",
+    "assists": "9",
+    "kda": "1",
+    "acs": "4157",
+    "map": "Icebox",
+    "agent": "Astra",
+    "mode": "escalation"
   }
 ]
