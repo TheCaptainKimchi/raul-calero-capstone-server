@@ -15,6 +15,21 @@
     "matchOutcome": "Victory"
   },
   {
+    "id": "feb419f9-c8c3-4be2-97a5-eefb9ba1ba77",
+    "userName": "Aang",
+    "tagline": "muse",
+    "puuid": "hsGXe6aNiaARussPRER1jIGiRCcNOMZbv9oZrHcVkDgX9HxuptRTnZw9EBweIPf1Dq8TxO79L8MNbg",
+    "kills": "11",
+    "deaths": "15",
+    "assists": "0",
+    "kda": "0.7333333333333333",
+    "acs": "2632",
+    "map": "District",
+    "agent": "Neon",
+    "mode": "custom",
+    "matchOutcome": "Defeat"
+  },
+  {
     "id": "d0f58e02-56d6-4388-9bdc-828ac890811f",
     "userName": "Aang",
     "tagline": "muse",
@@ -90,36 +105,6 @@
     "matchOutcome": "Defeat"
   },
   {
-    "id": "feb419f9-c8c3-4be2-97a5-eefb9ba1ba77",
-    "userName": "Aang",
-    "tagline": "muse",
-    "puuid": "hsGXe6aNiaARussPRER1jIGiRCcNOMZbv9oZrHcVkDgX9HxuptRTnZw9EBweIPf1Dq8TxO79L8MNbg",
-    "kills": "11",
-    "deaths": "15",
-    "assists": "0",
-    "kda": "0.7333333333333333",
-    "acs": "2632",
-    "map": "District",
-    "agent": "Neon",
-    "mode": "custom",
-    "matchOutcome": "Defeat"
-  },
-  {
-    "id": "4d1c5c44-3f76-4937-8ed2-3ab792e809b6",
-    "userName": "Aang",
-    "tagline": "muse",
-    "puuid": "hsGXe6aNiaARussPRER1jIGiRCcNOMZbv9oZrHcVkDgX9HxuptRTnZw9EBweIPf1Dq8TxO79L8MNbg",
-    "kills": "9",
-    "deaths": "6",
-    "assists": "1",
-    "kda": "1.6666666666666667",
-    "acs": "280",
-    "map": "Split",
-    "agent": "Omen",
-    "mode": "swiftplay",
-    "matchOutcome": "Defeat"
-  },
-  {
     "id": "a4798619-5b82-4365-83f9-78f11ab44d0c",
     "userName": "Aang",
     "tagline": "muse",
@@ -135,18 +120,18 @@
     "matchOutcome": "Defeat"
   },
   {
-    "id": "7c00ab38-bb85-4525-9e59-5d94972e4227",
-    "userName": "xStarWise",
-    "tagline": "NA1",
-    "puuid": "wyBvNX_NM_Qu61JJ0anao91ipKnUSDi98LPUNNpfPtrVO1DI9S4OUvQBzpPPseZpy1VpsWvhCw_Wgw",
+    "id": "4d1c5c44-3f76-4937-8ed2-3ab792e809b6",
+    "userName": "Aang",
+    "tagline": "muse",
+    "puuid": "hsGXe6aNiaARussPRER1jIGiRCcNOMZbv9oZrHcVkDgX9HxuptRTnZw9EBweIPf1Dq8TxO79L8MNbg",
     "kills": "9",
-    "deaths": "15",
-    "assists": "16",
+    "deaths": "6",
+    "assists": "1",
     "kda": "1.6666666666666667",
-    "acs": "137.5",
-    "map": "Bind",
-    "agent": "Sage",
-    "mode": "competitive",
+    "acs": "280",
+    "map": "Split",
+    "agent": "Omen",
+    "mode": "swiftplay",
     "matchOutcome": "Defeat"
   }
 ]
