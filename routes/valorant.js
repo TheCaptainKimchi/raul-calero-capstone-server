@@ -105,6 +105,7 @@ router
       map: req.query.map,
       agent: req.query.agent,
       mode: req.query.mode,
+      matchOutcome: req.query.matchOutcome,
     };
 
     try {
@@ -365,6 +366,7 @@ router.route("/login").post((req, res) => {
           puuid: foundUser.puuid,
           riotId: foundUser.riotId,
           tagline: foundUser.tagline,
+          matchOutcome: foundUser.matchOutcome,
           loginTime: Date.now(),
         },
         process.env.JWT_SECRET,
