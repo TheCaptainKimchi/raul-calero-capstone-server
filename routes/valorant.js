@@ -14,7 +14,6 @@ const usersPath = path.join(__dirname, "..", "data", "users.json");
 // ====== Default path ======
 // ==========================
 router.route("/").get((req, res) => {
-  console.log(apiKey);
   res.send(
     "Welcome to the SparkGG API! To get started, you can send a GET request to /match and /leaderboard."
   );
@@ -26,8 +25,6 @@ router.route("/").get((req, res) => {
 router.route("/puuid").get((req, res) => {
   const userName = req.query.userName;
   const tagline = req.query.tagline;
-  console.log(`userName: ${userName}`);
-  console.log(`tagline: ${tagline}`);
 
   axios
     .get(
@@ -48,7 +45,6 @@ router.route("/puuid").get((req, res) => {
 // ==========================
 router.route("/matchId").get((req, res) => {
   const puuid = req.query.puuid;
-  console.log(`puuid: ${puuid}`);
 
   axios
     .get(
@@ -70,7 +66,6 @@ router.route("/matchId").get((req, res) => {
 // ==========================
 router.route("/match").get((req, res) => {
   const matchId = req.query.matchId;
-  console.log(matchId);
 
   axios
     .get(
@@ -454,7 +449,6 @@ const authorise = (req, res, next) => {
   //  3) A callback to perform after the JWT has been verified
   // The callback function has two parameters for us to use, an error (if there is one) and the decoded token
 
-  console.log(authToken);
   jwt.verify(authToken, process.env.JWT_SECRET, (err, decoded) => {
     // Check if there was an error when verifying the JWT token
     if (err) {
