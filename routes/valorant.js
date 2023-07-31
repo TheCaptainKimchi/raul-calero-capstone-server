@@ -1,3 +1,4 @@
+// Imports
 const express = require("express");
 const router = express.Router();
 const fs = require("fs");
@@ -6,6 +7,7 @@ const { isDataExists } = require("../utils/utils");
 const path = require("path");
 const jwt = require("jsonwebtoken");
 
+// Paths and API Key
 const apiKey = process.env.API_KEY;
 const filePath = path.join(__dirname, "..", "data", "leaderboard.json");
 const usersPath = path.join(__dirname, "..", "data", "users.json");
@@ -13,6 +15,8 @@ const usersPath = path.join(__dirname, "..", "data", "users.json");
 // ==========================
 // ====== Default path ======
 // ==========================
+
+// Default path to explain API
 router.route("/").get((req, res) => {
   res.send(
     "Welcome to the SparkGG API! To get started, you can send a GET request to /match and /leaderboard."
@@ -22,6 +26,8 @@ router.route("/").get((req, res) => {
 // ==========================
 // ======= PUUID path =======
 // ==========================
+
+// Get PUUID from Riot API using riotID and tagline
 router.route("/puuid").get((req, res) => {
   const userName = req.query.userName;
   const tagline = req.query.tagline;
@@ -43,6 +49,8 @@ router.route("/puuid").get((req, res) => {
 // ==========================
 // ====== MatchId path ======
 // ==========================
+
+// Get List of matchIds by using player PUUID
 router.route("/matchId").get((req, res) => {
   const puuid = req.query.puuid;
 
@@ -64,6 +72,8 @@ router.route("/matchId").get((req, res) => {
 // ==========================
 // ======= Match path =======
 // ==========================
+
+// Get match details using matchId
 router.route("/match").get((req, res) => {
   const matchId = req.query.matchId;
 
@@ -84,8 +94,12 @@ router.route("/match").get((req, res) => {
 // ================================
 // ======= Leaderboard path =======
 // ================================
+
+
 router
   .route("/leaderboard")
+
+  // Post match data related to user in to server database
   .post((req, res) => {
     const obj = {
       id: req.query.id,
@@ -133,6 +147,8 @@ router
       res.status(400).json({ error: "Something went wrong." });
     }
   })
+
+  // Get leaderboard database pulling top kills, deaths, assists, and best KDA
   .get((req, res) => {
     // Read the contents of the leaderboard.json file
     fs.readFile(filePath, "utf8", (err, data) => {
@@ -289,6 +305,7 @@ router
     });
   });
 
+  // Get leaderboard data for specific user by PUUID
 router.route("/leaderboard/:puuid").get((req, res) => {
   const puuid = req.params.puuid;
 
@@ -442,13 +459,6 @@ const authorise = (req, res, next) => {
   // Get the token itself for the authorization header (without "Bearer ")
   const authToken = req.headers.authorization.split(" ")[1];
 
-  // The callback comes with two parameters - the error and the decoded token (the payload)
-  // To check the JWT token, we provide 3 arguments to jwt.verify()
-  //  1) The token
-  //  2) The secret it was signed with
-  //  3) A callback to perform after the JWT has been verified
-  // The callback function has two parameters for us to use, an error (if there is one) and the decoded token
-
   jwt.verify(authToken, process.env.JWT_SECRET, (err, decoded) => {
     // Check if there was an error when verifying the JWT token
     if (err) {
@@ -466,6 +476,7 @@ const authorise = (req, res, next) => {
   });
 };
 
+// Send decoded token data back
 router.route("/profile").get(authorise, (req, res) => {
   res.json({
     token: req.jwtDecoded,
@@ -481,18 +492,3 @@ router.route("*").get((req, res) => {
   );
 });
 module.exports = router;
-
-// const { username, password } = req.query;
-
-// // Check if the user already exists the the DB
-// const user = users.find((user) => user.username === username);
-// if (user) {
-//   return res
-//     .status(400)
-//     .json({ success: false, message: "User already exists" });
-// }
-
-// // Add the user to the DB
-// users.push({ username, password });
-
-// res.status(201).json({ success: true, message: "User created" });
