@@ -13,8 +13,7 @@ List of routes that can be called:
 1. ("/") default path to explain different paths to call.
 2. ("/leaderboard") leaderboard path to post/get leaderboard data
 3. ("/leaderboard/:puuid") search specific user leaderboard data
-4. ("/users") users path to post/get user data
-5. ("/profile") check user JWT token
-6. ("/puuid") obtain player puuid from Riot Games API
-7. ("/matchId") obtain player matchIds using puuid from Riot Games API
-8. ("/match") obtain player match details using matchId from Riot Games API
+4. ("/profile") check user JWT token
+5. ("/puuid") obtain player puuid from Riot Games API
+6. ("/matchId") obtain player matchIds using puuid from Riot Games API
+7. ("/match") obtain player match details using matchId from Riot Games API

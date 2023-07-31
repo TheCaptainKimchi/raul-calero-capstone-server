@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SparkGG API</title>
+  </head>
+  <body>
+    <div>
+      <h1>Welcome to the SparkGG API</h1>
+      <p>Learn how to navigate through the API with the steps below</p>
+    </div>
+    <div>
+      <h2>Paths</h2>
+      <ul>
+        <li>
+          <h3>("/") Default Path</h3>
+          <p>
+            This is the default path you are on now. This gives a walkthrough of
+            the SparkGG API
+          </p>
+        </li>
+        <li>
+          <h3>("/leaderboard") Leaderboard Path</h3>
+          <p>
+            This path has both GET and POST to store match data or display the
+            current leaderboard data calculated from the database list.
+          </p>
+        </li>
+        <li>
+          <h3>("/leaderboard/:puuid") Leaderboard/:puuid Path</h3>
+          <p>
+            This path will get the leaderboard data of a specific player by
+            using their PUUID.
+          </p>
+        </li>
+        <li>
+          <h3>("/login") Login Path</h3>
+          <p>
+            This path will authenticate user login details and allow access to
+            receiving data from server.
+          </p>
+        </li>
+        <li>
+          <h3>("/register") Register Path</h3>
+          <p>
+            This path will create a new user account and store the data within
+            the server.
+          </p>
+        </li>
+        <li>
+          <h3>("/profile") Profile Path</h3>
+          <p>This path will decode token data and send it back.</p>
+        </li>
+        <li>
+          <h3>("/puuid") Puuid Path</h3>
+          <p>
+            This path will find the puuid of a player from the Riot Games API
+          </p>
+        </li>
+        <li>
+          <h3>("/matchId") MatchId Path</h3>
+          <p>
+            This path will find the list of matches of a player using their
+            PUUID.
+          </p>
+        </li>
+        <li>
+          <h3>("/match") Match Path</h3>
+          <p>
+            This path will find the match details of a player's game using a
+            matchId
+          </p>
+        </li>
+      </ul>
+    </div>
+  </body>
+</html>
