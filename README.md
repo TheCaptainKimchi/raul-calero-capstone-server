@@ -1,1 +1,20 @@
-"# raul-calero-capstone-server" 
+# Installation
+
+Download code. Using vsCode, open folder with code. In vsCode terminal, run [$ npm i] to install dependencies. Create a .env file reference .env.example.
+
+## About The App
+
+This is a server to be paired with the client version of this app. It is geared to store user data, make axios calls to the Riot Games Api, and send data back to the client.
+
+## Routes
+
+List of routes that can be called:
+
+1. ("/") default path to explain different paths to call.
+2. ("/leaderboard") leaderboard path to post/get leaderboard data
+3. ("/leaderboard/:puuid") search specific user leaderboard data
+4. ("/users") users path to post/get user data
+5. ("/profile") check user JWT token
+6. ("/puuid") obtain player puuid from Riot Games API
+7. ("/matchId") obtain player matchIds using puuid from Riot Games API
+8. ("/match") obtain player match details using matchId from Riot Games API
