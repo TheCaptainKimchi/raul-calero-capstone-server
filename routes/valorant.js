@@ -18,9 +18,7 @@ const usersPath = path.join(__dirname, "..", "data", "users.json");
 
 // Default path to explain API
 router.route("/").get((req, res) => {
-  res.send(
-    "Welcome to the SparkGG API! To get started, you can send a GET request to /match and /leaderboard."
-  );
+  res.sendFile(path.join(__dirname, "..", "index.html"));
 });
 
 // ==========================
@@ -94,7 +92,6 @@ router.route("/match").get((req, res) => {
 // ================================
 // ======= Leaderboard path =======
 // ================================
-
 
 router
   .route("/leaderboard")
@@ -305,7 +302,7 @@ router
     });
   });
 
-  // Get leaderboard data for specific user by PUUID
+// Get leaderboard data for specific user by PUUID
 router.route("/leaderboard/:puuid").get((req, res) => {
   const puuid = req.params.puuid;
 
