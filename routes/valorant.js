@@ -364,7 +364,7 @@ router.route("/login").post((req, res) => {
       if (password !== foundUser.password) {
         return res.status(400).json({
           success: false,
-          message: "Username/Password combination is incorrect",
+          error: "Username/Password combination is incorrect",
         });
       }
 
