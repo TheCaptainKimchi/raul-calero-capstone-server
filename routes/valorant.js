@@ -364,7 +364,7 @@ router.route("/login").post((req, res) => {
       if (password !== foundUser.password) {
         return res.status(400).json({
           success: false,
-          message: "Username/Password combination is incorrect",
+          error: "Username/Password combination is incorrect",
         });
       }
 
@@ -379,7 +379,7 @@ router.route("/login").post((req, res) => {
           loginTime: Date.now(),
         },
         process.env.JWT_SECRET,
-        { expiresIn: "5m" }
+        { expiresIn: "1440m" }
       );
 
       // Send the JWT token to the frontend
