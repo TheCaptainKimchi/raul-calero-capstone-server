@@ -6,6 +6,7 @@ const axios = require("axios");
 const { isDataExists } = require("../utils/utils");
 const path = require("path");
 const jwt = require("jsonwebtoken");
+const knex = require("knex")(require("../knexfile.js"));
 
 // Paths and API Key
 const apiKey = process.env.API_KEY;
