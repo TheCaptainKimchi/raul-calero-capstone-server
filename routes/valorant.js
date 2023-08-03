@@ -148,159 +148,107 @@ router
 
   // Get leaderboard database pulling top kills, deaths, assists, and best KDA
   .get((req, res) => {
-    // Read the contents of the leaderboard.json file
-    fs.readFile(filePath, "utf8", (err, data) => {
-      if (err) {
-        console.error("Error reading the leaderboard.json file:", err);
-        return;
-      }
+    knex("leaderboard")
+      .then((leaderboard) => {
+        // Create an object to store total kills, deaths, and assists for each puuid
+        const statsByPuuid = {};
 
-      // Parse the JSON data into an array of objects
-      const leaderboardData = JSON.parse(data);
+        // Calculate total kills, deaths, and assists for each puuid
+        leaderboard.forEach((currentData) => {
+          const puuid = currentData.puuid;
+          const name = currentData.username;
+          const kills = parseInt(currentData.kills);
+          const deaths = parseInt(currentData.deaths);
+          const assists = parseInt(currentData.assists);
+          const kda = parseInt(currentData.kda);
+          const acs = parseInt(currentData.acs);
+          const counter = 0;
 
-      // Create an object to store the total kills and names for each unique puuid
-      const puuidKillsMap = {};
-      const puuidDeathsMap = {};
-      const puuidAssistsMap = {};
+          if (!statsByPuuid[puuid]) {
+            // If puuid is not in 'statsByPuuid', initialize it with kills, deaths, and assists
+            statsByPuuid[puuid] = {
+              name: name,
+              kills: kills,
+              deaths: deaths,
+              assists: assists,
+              kda: kda,
+              acs: acs,
+              counter: counter,
+            };
+          } else {
+            // If puuid is already in 'statsByPuuid', update kills, deaths, and assists
+            statsByPuuid[puuid].kills += kills;
+            statsByPuuid[puuid].deaths += deaths;
+            statsByPuuid[puuid].assists += assists;
+            statsByPuuid[puuid].kda += kda;
+            statsByPuuid[puuid].acs += acs;
+            statsByPuuid[puuid].counter += 1;
+          }
+        });
 
-      // ===== KILLS =====
+        // Find the puuid with the highest total kills, deaths, and assists
+        let highestKillsPuuid = null;
+        let highestKills = -1;
+        let highestDeathsPuuid = null;
+        let highestDeaths = -1;
+        let highestAssistsPuuid = null;
+        let highestAssists = -1;
 
-      // Loop through the array of objects and sum up the kills for each puuid
-      leaderboardData.forEach((entry) => {
-        const puuid = entry.puuid;
-        const kills = parseInt(entry.kills);
-        const name = entry.userName;
+        Object.entries(statsByPuuid).forEach(
+          ([puuid, { kills, deaths, assists }]) => {
+            if (kills > highestKills) {
+              highestKills = kills;
+              highestKillsPuuid = puuid;
+            }
 
-        // If the puuid is already in the map, add the kills to its total
-        if (puuidKillsMap.hasOwnProperty(puuid)) {
-          puuidKillsMap[puuid].kills += kills;
-        } else {
-          // If the puuid is not in the map, initialize it with the current kills and name
-          puuidKillsMap[puuid] = { name, kills };
-        }
+            if (deaths > highestDeaths) {
+              highestDeaths = deaths;
+              highestDeathsPuuid = puuid;
+            }
+
+            if (assists > highestAssists) {
+              highestAssists = assists;
+              highestAssistsPuuid = puuid;
+            }
+          }
+        );
+
+        console.log("Puuid with the highest kills:", highestKillsPuuid);
+        console.log("Total kills:", highestKills);
+        console.log("Puuid with the highest deaths:", highestDeathsPuuid);
+        console.log("Total deaths:", highestDeaths);
+        console.log("Puuid with the highest assists:", highestAssistsPuuid);
+        console.log("Total assists:", highestAssists);
+
+        // Combine the results into one object
+        const result = {
+          highestKills: {
+            puuid: highestKillsPuuid,
+            kills: highestKills,
+            name: statsByPuuid[highestKillsPuuid].name,
+          },
+          highestDeaths: {
+            puuid: highestDeathsPuuid,
+            deaths: highestDeaths,
+            name: statsByPuuid[highestDeathsPuuid].name,
+          },
+          highestAssists: {
+            puuid: highestAssistsPuuid,
+            assists: highestAssists,
+            name: statsByPuuid[highestAssistsPuuid].name,
+          },
+        };
+
+        console.log("Combined Result:", result);
+
+        res.json(result);
+      })
+      .catch((error) => {
+        console.error(error);
+        res
+          .status(500)
+          .json({ error: "An error occurred while processing the request." });
       });
-
-      // Find the puuid with the highest total kills
-      let highestKills = 0;
-      let puuidWithHighestKills = null;
-      let nameWithHighestKills = null;
-
-      for (const puuid in puuidKillsMap) {
-        if (puuidKillsMap[puuid].kills > highestKills) {
-          highestKills = puuidKillsMap[puuid].kills;
-          puuidWithHighestKills = puuid;
-          nameWithHighestKills = puuidKillsMap[puuid].name;
-        }
-      }
-
-      const mostKills = {
-        puuid: puuidWithHighestKills,
-        name: nameWithHighestKills,
-        kills: highestKills,
-      };
-
-      // ===== DEATHS =====
-
-      leaderboardData.forEach((entry) => {
-        const puuid = entry.puuid;
-        const deaths = parseInt(entry.deaths);
-        const name = entry.userName;
-
-        // If the puuid is already in the map, add the kills to its total
-        if (puuidDeathsMap.hasOwnProperty(puuid)) {
-          puuidDeathsMap[puuid].deaths += deaths;
-        } else {
-          // If the puuid is not in the map, initialize it with the current kills and name
-          puuidDeathsMap[puuid] = { name, deaths };
-        }
-      });
-
-      let highestDeaths = 0;
-      let puuidWithHighestDeaths = null;
-      let nameWithHighestDeaths = null;
-
-      for (const puuid in puuidDeathsMap) {
-        if (puuidDeathsMap[puuid].deaths > highestDeaths) {
-          highestDeaths = puuidDeathsMap[puuid].deaths;
-          puuidWithHighestDeaths = puuid;
-          nameWithHighestDeaths = puuidDeathsMap[puuid].name;
-        }
-      }
-
-      const mostDeaths = {
-        puuid: puuidWithHighestDeaths,
-        name: nameWithHighestDeaths,
-        deaths: highestDeaths,
-      };
-
-      // ===== ASSISTS =====
-
-      leaderboardData.forEach((entry) => {
-        const puuid = entry.puuid;
-        const assists = parseInt(entry.assists);
-        const name = entry.userName;
-
-        if (puuidAssistsMap.hasOwnProperty(puuid)) {
-          puuidAssistsMap[puuid].assists += assists;
-        } else {
-          puuidAssistsMap[puuid] = { name, assists };
-        }
-      });
-
-      let highestAssists = 0;
-      let puuidWithHighestAssists = null;
-      let nameWithHighestAssists = null;
-
-      for (const puuid in puuidAssistsMap) {
-        if (puuidAssistsMap[puuid].assists > highestAssists) {
-          highestAssists = puuidAssistsMap[puuid].assists;
-          puuidWithHighestAssists = puuid;
-          nameWithHighestAssists = puuidAssistsMap[puuid].name;
-        }
-      }
-
-      const mostAssists = {
-        puuid: puuidWithHighestAssists,
-        name: nameWithHighestAssists,
-        assists: highestAssists,
-      };
-
-      // ===== KDA =====
-
-      // Find the puuid with the highest average KDA
-      let highestAverageKda = 0;
-      let puuidWithHighestAverageKda = null;
-      let nameWithHighestAverageKda = null;
-
-      leaderboardData.forEach((entry) => {
-        const puuid = entry.puuid;
-        const kda = parseFloat(entry.kda); // Convert to a floating-point number
-        const name = entry.userName;
-
-        if (kda > highestAverageKda) {
-          highestAverageKda = kda;
-          puuidWithHighestAverageKda = puuid;
-          nameWithHighestAverageKda = name;
-        }
-      });
-
-      const bestKda = {
-        puuid: puuidWithHighestAverageKda,
-        name: nameWithHighestAverageKda,
-        kda: highestAverageKda,
-      };
-
-      // ===== OUTPUT =====
-
-      const leaderboard = {
-        mostKills: mostKills,
-        mostDeaths: mostDeaths,
-        mostAssists: mostAssists,
-        bestKda: bestKda,
-      };
-
-      res.json(leaderboard);
-    });
   });
 
 // Get leaderboard data for specific user by PUUID
