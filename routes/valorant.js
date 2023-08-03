@@ -247,15 +247,16 @@ router
 router.route("/leaderboard/:puuid").get((req, res) => {
   const puuid = req.params.puuid;
 
+  const playerData = [];
+
   knex("leaderboard")
     .then((leaderboard) => {
-      const foundPlayer = leaderboard.find(
-        (leaderboard) => leaderboard.puuid === puuid
-      );
-      if (!foundPlayer) {
-        res.status(400).json(`Unable to locate player with PUUID: ${puuid}`);
-      }
-      res.send(foundPlayer);
+      leaderboard.map((playerMatch) => {
+        if (playerMatch.puuid === puuid) {
+          return playerData.push(playerMatch);
+        }
+      });
+      res.send(playerData);
     })
     .catch((error) => {
       res.status(400).json("Unable to retrieve player from PUUID");
@@ -271,11 +272,15 @@ router.route("/login").post((req, res) => {
   const { username, password } = req.query;
 
   knex("users").then((users) => {
+    console.log(`Password is: ${password}`);
     const foundUser = users.find((user) => user.username === username);
+    console.log(foundUser);
 
     if (!foundUser) {
-      res.status(404);
-      res.send("Account does not exist");
+      return res.status(400).json({
+        success: false,
+        error: "Account does not exist!",
+      });
     }
 
     // Validate the supplied password matches the password in the DB
