@@ -3,7 +3,6 @@ const express = require("express");
 const router = express.Router();
 const fs = require("fs");
 const axios = require("axios");
-const { isDataExists } = require("../utils/utils");
 const path = require("path");
 const jwt = require("jsonwebtoken");
 const knex = require("knex")(require("../knexfile.js"));
@@ -100,7 +99,7 @@ router
   // Post match data related to user in to server database
   .post((req, res) => {
     const obj = {
-      id: req.query.id,
+      matchId: req.query.id,
       userName: req.query.userName,
       tagline: req.query.tagline,
       puuid: req.query.puuid,
@@ -114,36 +113,25 @@ router
       mode: req.query.mode,
       matchOutcome: req.query.matchOutcome,
     };
+    console.log(obj);
 
-    try {
-      // Read the existing data from the JSON file (if any)
-      let existingData = [];
-      if (fs.existsSync(filePath)) {
-        const dataString = fs.readFileSync(filePath, "utf8");
-        existingData = JSON.parse(dataString);
-      }
-
-      // Check if data with the given id already exists
-      if (isDataExists(existingData, obj)) {
-        return res
-          .status(200)
-          .json({ Response: "Data already added to database." });
-      }
-
-      // Append the received data to the existing data
-      existingData.push(obj);
-
-      // Write the updated data back to the JSON file
-      fs.writeFileSync(filePath, JSON.stringify(existingData, null, 2), "utf8");
-
-      // Respond with a success message
-      res
-        .status(200)
-        .json({ message: "Data added to the JSON file successfully." });
-    } catch (error) {
-      console.error("Error processing the request:", error);
-      res.status(400).json({ error: "Something went wrong." });
-    }
+    knex("leaderboard")
+      .where({ matchId: obj.matchId }) // Check if the matchId exists
+      .then((matches) => {
+        if (matches.length > 0) {
+          // If there's a match, the data already exists
+          return res
+            .status(200)
+            .json({ Response: "Data already added to database." });
+        } else {
+          // If there's no match, insert the data into the database
+          res.status(201).json("Data inserted successfully!");
+          return knex("leaderboard").insert(obj);
+        }
+      })
+      .catch((error) => {
+        res.status(400).json("An error occurred while inserting data.");
+      });
   })
 
   // Get leaderboard database pulling top kills, deaths, assists, and best KDA
@@ -162,7 +150,6 @@ router
           const assists = parseInt(currentData.assists);
           const kda = parseInt(currentData.kda);
           const acs = parseInt(currentData.acs);
-          const counter = 0;
 
           if (!statsByPuuid[puuid]) {
             // If puuid is not in 'statsByPuuid', initialize it with kills, deaths, and assists
@@ -173,7 +160,7 @@ router
               assists: assists,
               kda: kda,
               acs: acs,
-              counter: counter,
+              counter: 1,
             };
           } else {
             // If puuid is already in 'statsByPuuid', update kills, deaths, and assists
@@ -185,17 +172,22 @@ router
             statsByPuuid[puuid].counter += 1;
           }
         });
+        console.log(statsByPuuid);
 
         // Find the puuid with the highest total kills, deaths, and assists
         let highestKillsPuuid = null;
-        let highestKills = -1;
+        let highestKills = 0;
         let highestDeathsPuuid = null;
-        let highestDeaths = -1;
+        let highestDeaths = 0;
         let highestAssistsPuuid = null;
-        let highestAssists = -1;
+        let highestAssists = 0;
+        let bestKda = 0;
+        let bestKdaPuuid = null;
+        let bestAcs = 0;
+        let bestAcsPuuid = null;
 
         Object.entries(statsByPuuid).forEach(
-          ([puuid, { kills, deaths, assists }]) => {
+          ([puuid, { kills, deaths, assists, kda, acs, counter }]) => {
             if (kills > highestKills) {
               highestKills = kills;
               highestKillsPuuid = puuid;
@@ -212,13 +204,6 @@ router
             }
           }
         );
-
-        console.log("Puuid with the highest kills:", highestKillsPuuid);
-        console.log("Total kills:", highestKills);
-        console.log("Puuid with the highest deaths:", highestDeathsPuuid);
-        console.log("Total deaths:", highestDeaths);
-        console.log("Puuid with the highest assists:", highestAssistsPuuid);
-        console.log("Total assists:", highestAssists);
 
         // Combine the results into one object
         const result = {
@@ -255,32 +240,19 @@ router
 router.route("/leaderboard/:puuid").get((req, res) => {
   const puuid = req.params.puuid;
 
-  // Read the leaderboard.json file
-  fs.readFile(filePath, "utf8", (err, data) => {
-    if (err) {
-      console.error("Error reading file:", err);
-      return res.status(500).json({ error: "Internal server error" });
-    }
-
-    try {
-      // Parse the JSON data
-      const leaderboardData = JSON.parse(data);
-
-      // Filter the data for the given user's puuid
-      const userData = leaderboardData.filter((user) => user.puuid === puuid);
-
-      // Check if the user was found
-      if (userData.length === 0) {
-        return res.status(404).json({ error: "User not found" });
+  knex("leaderboard")
+    .then((leaderboard) => {
+      const foundPlayer = leaderboard.find(
+        (leaderboard) => leaderboard.puuid === puuid
+      );
+      if (!foundPlayer) {
+        res.status(400).json(`Unable to locate player with PUUID: ${puuid}`);
       }
-
-      // If found, send the data back
-      return res.json(userData);
-    } catch (parseError) {
-      console.error("Error parsing JSON:", parseError);
-      return res.status(500).json({ error: "Internal server error" });
-    }
-  });
+      res.send(foundPlayer);
+    })
+    .catch((error) => {
+      res.status(400).json("Unable to retrieve player from PUUID");
+    });
 });
 
 // ==========================
@@ -291,52 +263,38 @@ router.route("/leaderboard/:puuid").get((req, res) => {
 router.route("/login").post((req, res) => {
   const { username, password } = req.query;
 
-  fs.readFile(usersPath, "utf8", (err, data) => {
-    if (err) {
-      console.error("Error reading the users.json file:", err);
-      return res.status(500).json({ error: "Server error" });
+  knex("users").then((users) => {
+    const foundUser = users.find((user) => user.username === username);
+
+    if (!foundUser) {
+      res.status(404);
+      res.send("Account does not exist");
     }
 
-    try {
-      // Parse the JSON data into an array of objects
-      const usersData = JSON.parse(data);
-
-      // Find the user with the matching username
-      const foundUser = usersData.find((user) => user.username === username);
-
-      if (!foundUser) {
-        // User does not exist, return error response
-        return res.status(404).json({ error: "User not found" });
-      }
-
-      // Validate the supplied password matches the password in the DB
-      if (password !== foundUser.password) {
-        return res.status(400).json({
-          success: false,
-          error: "Username/Password combination is incorrect",
-        });
-      }
-
-      // User exists and password is correct, return success response
-      const token = jwt.sign(
-        {
-          username: username,
-          puuid: foundUser.puuid,
-          riotId: foundUser.riotId,
-          tagline: foundUser.tagline,
-          matchOutcome: foundUser.matchOutcome,
-          loginTime: Date.now(),
-        },
-        process.env.JWT_SECRET,
-        { expiresIn: "1440m" }
-      );
-
-      // Send the JWT token to the frontend
-      return res.status(200).json({ token });
-    } catch (error) {
-      console.error("Error parsing JSON data:", error);
-      return res.status(500).json({ error: "Server error" });
+    // Validate the supplied password matches the password in the DB
+    if (password !== foundUser.password) {
+      return res.status(400).json({
+        success: false,
+        error: "Username/Password combination is incorrect",
+      });
     }
+
+    // User exists and password is correct, return success response
+    const token = jwt.sign(
+      {
+        username: username,
+        puuid: foundUser.puuid,
+        riotId: foundUser.riotId,
+        tagline: foundUser.tagline,
+        matchOutcome: foundUser.matchOutcome,
+        loginTime: Date.now(),
+      },
+      process.env.JWT_SECRET,
+      { expiresIn: "1440m" }
+    );
+
+    // Send the JWT token to the frontend
+    return res.status(200).json({ token });
   });
 });
 
@@ -345,44 +303,27 @@ router.route("/register").post((req, res) => {
   // Get the user submitted details from the request body
   const { username, password, riotId, tagline, email, puuid } = req.query;
 
-  // Read the existing users data from the file
-  fs.readFile(usersPath, "utf8", (err, data) => {
-    if (err) {
-      console.error("Error reading the users.json file:", err);
-      return res.status(500).json({ success: false, message: "Server error" });
-    }
+  knex("users")
+    .then((users) => {
+      const foundUser = users.find((user) => user.username === username);
 
-    try {
-      // Parse the JSON data into an array of objects
-      const usersData = JSON.parse(data);
-
-      // Check if the user already exists in the users data
-      const userExists = usersData.some((user) => user.username === username);
-      if (userExists) {
-        return res
-          .status(400)
-          .json({ success: false, message: "User already exists" });
+      if (foundUser) {
+        res.status(400).json("Username already taken");
+      } else {
+        res.status(200).json("Account successfully made!");
+        return knex("users").insert({
+          username,
+          password,
+          riotId,
+          tagline,
+          email,
+          puuid,
+        });
       }
-
-      // Add the new user to the users data
-      usersData.push({ username, password, riotId, tagline, email, puuid });
-
-      // Write the updated data back to the users.json file
-      fs.writeFile(usersPath, JSON.stringify(usersData), (err) => {
-        if (err) {
-          console.error("Error writing to the users.json file:", err);
-          return res
-            .status(500)
-            .json({ success: false, message: "Server error" });
-        }
-
-        return res.status(201).json({ success: true, message: "User created" });
-      });
-    } catch (error) {
-      console.error("Error parsing JSON data:", error);
-      return res.status(500).json({ success: false, message: "Server error" });
-    }
-  });
+    })
+    .catch((error) => {
+      res.status(400).json(error);
+    });
 });
 
 // Middleware which checks the authorization token
