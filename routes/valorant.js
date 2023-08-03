@@ -113,7 +113,6 @@ router
       mode: req.query.mode,
       matchOutcome: req.query.matchOutcome,
     };
-    console.log(obj);
 
     knex("leaderboard")
       .where({ matchId: obj.matchId }) // Check if the matchId exists
@@ -160,7 +159,6 @@ router
               assists: assists,
               kda: kda,
               acs: acs,
-              counter: 1,
             };
           } else {
             // If puuid is already in 'statsByPuuid', update kills, deaths, and assists
@@ -169,10 +167,8 @@ router
             statsByPuuid[puuid].assists += assists;
             statsByPuuid[puuid].kda += kda;
             statsByPuuid[puuid].acs += acs;
-            statsByPuuid[puuid].counter += 1;
           }
         });
-        console.log(statsByPuuid);
 
         // Find the puuid with the highest total kills, deaths, and assists
         let highestKillsPuuid = null;
@@ -181,13 +177,13 @@ router
         let highestDeaths = 0;
         let highestAssistsPuuid = null;
         let highestAssists = 0;
-        let bestKda = 0;
-        let bestKdaPuuid = null;
-        let bestAcs = 0;
-        let bestAcsPuuid = null;
+        let highestKda = 0;
+        let highestKdaPuuid = null;
+        let highestAcs = 0;
+        let highestAcsPuuid = null;
 
         Object.entries(statsByPuuid).forEach(
-          ([puuid, { kills, deaths, assists, kda, acs, counter }]) => {
+          ([puuid, { kills, deaths, assists, kda, acs }]) => {
             if (kills > highestKills) {
               highestKills = kills;
               highestKillsPuuid = puuid;
@@ -201,6 +197,14 @@ router
             if (assists > highestAssists) {
               highestAssists = assists;
               highestAssistsPuuid = puuid;
+            }
+            if ((kills + assists) / deaths > highestKda) {
+              highestKda = (kills + assists) / deaths;
+              highestKdaPuuid = puuid;
+            }
+            if (acs > highestAcs) {
+              highestAcs = acs;
+              highestAcsPuuid = puuid;
             }
           }
         );
@@ -222,9 +226,12 @@ router
             assists: highestAssists,
             name: statsByPuuid[highestAssistsPuuid].name,
           },
+          highestKda: {
+            puuid: highestKdaPuuid,
+            kda: highestKda,
+            name: statsByPuuid[highestKdaPuuid].name,
+          },
         };
-
-        console.log("Combined Result:", result);
 
         res.json(result);
       })
